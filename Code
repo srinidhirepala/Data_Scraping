@@ -1,0 +1,46 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from time import sleep
+import csv
+
+drive = webdriver.Chrome()
+
+drive.implicitly_wait(5)
+
+drive.get("https://www.flipkart.com/")
+sleep(1)
+
+drive.find_element(by=By.XPATH , value = "//input[@name='q']").click()
+sleep(1)
+
+drive.find_element(by=By.XPATH , value = "//input[@name='q']").send_keys("mobiles under 10000")
+sleep(2)
+
+drive.find_element(by=By.XPATH , value = "//button[@class='_2iLD__']").click()
+sleep(3)
+
+details = []
+pages = drive.find_elements(by=By.XPATH,value="//a[@class='cn++Ap']")
+for page in pages[:10]:
+        phone_list = drive.find_elements(by=By.XPATH,value="//div[@class='tUxRFH']")
+        for i,phone in enumerate(phone_list):
+            phone_name = phone.find_element(by=By.XPATH,value=".//div[@class='KzDlHZ']").text
+            phone_price = phone.find_element(by=By.XPATH,value=".//div[@class='Nx9bqj _4b5DiR']").text
+            phone_rating = phone.find_element(by=By.XPATH,value=".//div[@class='XQDdHH']").text
+            details.append([phone_name,phone_price,phone_rating])
+            # print(details)
+        try:
+            if page!=pages[2]:
+                page.click()
+            sleep(5)
+        except Exception as e1:
+            print(e1)
+sleep(1)
+with open('phones.csv','w',encoding='utf-8') as f:
+    insert = csv.writer(f)
+    attrib = ["PHONE NAME","PHONE PRICE","PHONE RATING"]
+    insert.writerow(attrib)
+    insert.writerows(details)
+drive.quit()
